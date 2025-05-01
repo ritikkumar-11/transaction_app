@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Transaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #28a745;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .links a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Create Transaction</h1>
+    <form id="transaction-form" method="post">
+        {% csrf_token %}
+        <input type="number" name="payer_id" placeholder="Payer ID" required>
+        <input type="number" name="reciever_id" placeholder="Receiver ID" required>
+        <input type="number" name="amount" placeholder="Amount" step="0.01" required>
+        <input type="number" name="repay_within_days" placeholder="Repay Within (Days)" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div class="links">
+        <!-- <a href="/dashboard/?user_id=1" target="_blank">View Dashboard (User 1)</a> -->
+        <!-- <a href="/api/transactions/" target="_blank">View All Transactions</a>
+        <a href="/api/friends/" target="_blank">View All Friends</a> -->
+    </div>
+
+    <script>
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+
+        const form = document.getElementById('transaction-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                payer_id: form.payer_id.value,
+                reciever_id: form.reciever_id.value,
+                amount: form.amount.value,
+                repay_within_days: form.repay_within_days.value
+            };
+
+            try {
+                const response = await fetch('/create-transaction/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken() // Include CSRF token
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert("Transaction created successfully");
+                    form.reset();
+                } else {
+                    console.error("Error Response:", result); // Log error response
+                    alert("Error: " + (result.error || "Something went wrong"));
+                }
+            } catch (error) {
+                console.error("Fetch Error:", error); // Log fetch error
+                alert("Error: Something went wrong");
+            }
+        });
+    </script>
+
+</body>
+</html>
