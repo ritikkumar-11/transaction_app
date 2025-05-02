@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from datetime import timedelta
 from .models import *
 from .serializers import *
@@ -8,11 +7,8 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.db.models import Sum
 from django.db.models import F, ExpressionWrapper, DateField, Sum
-from django.db.models.functions import Now
 from .models import Transction, Friend
-
 from django.db.models import DurationField
-# from django.shortcuts import render
 
 def index(request):
     return render(request, 'transctions/index.html')
@@ -44,9 +40,8 @@ def dashboard_view(request):
             output_field=DateField()
         )
     )
-    print("Annotated Transactions:", list(annotated_transactions.values('date', 'repay_within_days', 'repayment_date', 'payer', 'receiver', 'amount')))
     for week in range(8):
-        start = today + timedelta(weeks=week)
+        start = today + timedelta(weeks=week) #this will this ensure that start will strat from today + no of days in week
         end = start + timedelta(days=6)
 
         week_data = {
