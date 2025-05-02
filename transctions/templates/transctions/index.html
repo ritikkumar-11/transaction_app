@@ -77,55 +77,14 @@
     <h1>8-Week Money Dashboard</h1>
 
     <div class="center">
-        <input type="text" id="user_id" placeholder="Enter your user_id">
-        <button onclick="loadDashboard()">Load Dashboard</button>
+        <form method="get" action="/dashboard/">
+            <input type="text" name="user_id" placeholder="Enter your user_id" required>
+            <button type="submit">Load Dashboard</button>
+        </form>
     </div>
-
-    <div id="dashboard"></div>
 
     <div class="links">
-        <a href="/create-form/" target="_blank">Create Transaction</a> <!-- Added link -->
+        <a href="/create-form/" target="_blank">Create Transaction</a>
     </div>
-
-    <script>
-        async function loadDashboard() {
-            const userId = document.getElementById('user_id').value;
-            if (!userId) {
-                alert("Please enter user_id");
-                return;
-            }
-
-            const response = await fetch(`/dashboard/?user_id=${userId}`);
-            const data = await response.json();
-
-            const container = document.getElementById('dashboard');
-            container.innerHTML = '';
-
-            data.forEach(week => {
-                const card = document.createElement('div');
-                card.className = 'week-card';
-
-                card.innerHTML = `
-                    <h2>Week ${week.week} (${week.from_date} - ${week.to_date})</h2>
-                    <div class="summary">
-                        <span>To Pay: ₹${week.to_pay_total}</span>
-                        <span>To Receive: ₹${week.to_receive_total}</span>
-                    </div>
-
-                    <div class="breakdown">
-                        <strong>Pay Breakdown:</strong>
-                        ${week.to_pay_breakdown.map(e => `<div class="friend-entry">${e.friend}: ₹${e.amount}</div>`).join('') || '<div class="friend-entry">None</div>'}
-                    </div>
-
-                    <div class="breakdown">
-                        <strong>Receive Breakdown:</strong>
-                        ${week.to_receive_breakdown.map(e => `<div class="friend-entry">${e.friend}: ₹${e.amount}</div>`).join('') || '<div class="friend-entry">None</div>'}
-                    </div>
-                `;
-
-                container.appendChild(card);
-            });
-        }
-    </script>
 </body>
 </html>

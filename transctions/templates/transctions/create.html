@@ -55,7 +55,7 @@
 <body>
 
     <h1>Create Transaction</h1>
-    <form id="transaction-form" method="post">
+    <form id="transaction-form" method="post" action="/create-transaction/">
         {% csrf_token %}
         <input type="number" name="payer_id" placeholder="Payer ID" required>
         <input type="number" name="reciever_id" placeholder="Receiver ID" required>
@@ -65,51 +65,10 @@
     </form>
 
     <div class="links">
-        <!-- <a href="/dashboard/?user_id=1" target="_blank">View Dashboard (User 1)</a> -->
-        <!-- <a href="/api/transactions/" target="_blank">View All Transactions</a>
-        <a href="/api/friends/" target="_blank">View All Friends</a> -->
+        <a href="/dashboard/?user_id=1" target="_blank">View Dashboard (User 1)</a>
+        <a href="/api/transactions/" target="_blank">View All Transactions</a>
+        <a href="/api/friends/" target="_blank">View All Friends</a>
     </div>
-
-    <script>
-        function getCSRFToken() {
-            return document.querySelector('[name=csrfmiddlewaretoken]').value;
-        }
-
-        const form = document.getElementById('transaction-form');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const data = {
-                payer_id: form.payer_id.value,
-                reciever_id: form.reciever_id.value,
-                amount: form.amount.value,
-                repay_within_days: form.repay_within_days.value
-            };
-
-            try {
-                const response = await fetch('/create-transaction/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken() // Include CSRF token
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert("Transaction created successfully");
-                    form.reset();
-                } else {
-                    console.error("Error Response:", result); // Log error response
-                    alert("Error: " + (result.error || "Something went wrong"));
-                }
-            } catch (error) {
-                console.error("Fetch Error:", error); // Log fetch error
-                alert("Error: Something went wrong");
-            }
-        });
-    </script>
 
 </body>
 </html>

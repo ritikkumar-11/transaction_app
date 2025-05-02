@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from datetime import timedelta
 from .models import *
@@ -90,33 +91,31 @@ def dashboard_view(request):
 
     return Response(result)
 
-from django.views.decorators.csrf import csrf_exempt
-@csrf_exempt
-@api_view(['POST'])
 def create_transction(request):
-   
-    payer_id = request.data.get('payer_id')
-    reciever_id  = request.data.get('reciever_id')
-    amount = request.data.get('amount')
-    repay_within_days = request.data.get('repay_within_days')
+    if request.method == 'POST':
+        payer_id = request.POST.get('payer_id')
+        reciever_id = request.POST.get('reciever_id')
+        amount = request.POST.get('amount')
+        repay_within_days = request.POST.get('repay_within_days')
 
-    if not all([payer_id, reciever_id, amount, repay_within_days]):
-        return Response({'error' : 'All field are required'}, status=400)
-    
-    try:
-        payer = Friend.objects.get(id=payer_id)
-        receiver = Friend.objects.get(id=reciever_id)
-    except Friend.DoesNotExist:
-        return Response({'error': 'Payer or Receiver not found'}, status=404)
+        try:
+            # Validate payer and receiver
+            payer = Friend.objects.get(id=payer_id)
+            receiver = Friend.objects.get(id=reciever_id)
 
-    transaction = Transction.objects.create(
-        payer=payer,
-        receiver=receiver,
-        amount=amount,
-        repay_within_days=repay_within_days
-    )
+            # Create the transaction
+            Transction.objects.create(
+                payer=payer,
+                receiver=receiver,
+                amount=amount,
+                repay_within_days=repay_within_days,
+                date=timezone.now().date()
+            )
 
-    serializer = TransctionSerializers(transaction)
-    return Response(serializer.data, status=201)
+            # Redirect to the index page
+            return redirect('index')
+        except Friend.DoesNotExist:
+            return HttpResponse("Payer or Receiver not found", status=404)
+    return HttpResponse("Invalid request", status=400)
 
 
